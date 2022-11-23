@@ -1,0 +1,18 @@
+overwrite: true
+schema: http://127.0.0.1:13020/graphql
+documents: ./graphql/documents/**/*.graphql
+generates:
+  graphql/types.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+  graphql:
+    preset: near-operation-file
+    presetConfig:
+      baseTypesPath: types.ts
+    plugins:
+      - typescript-operations
+      - typescript-react-apollo
+  graphql/schema.json:
+    plugins:
+      - 'introspection'

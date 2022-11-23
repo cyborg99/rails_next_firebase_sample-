@@ -1,0 +1,82 @@
+inherit_from: .rubocop_todo.yml
+
+# inherit_from: .rubocop_todo.yml
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+AllCops:
+  Exclude:
+    - spec/rails_helper.rb
+    - .bundle/**/*
+    - vendor/**/*
+    - bin/**/*
+    - db/**/*
+    - tmp/**/*
+    - config/**/*
+  TargetRubyVersion: 3.1
+  NewCops: enable
+
+require:
+  - rubocop-ast
+  - rubocop-rails
+  - rubocop-rake
+  - rubocop-rspec
+  - rubocop-performance
+
+Style/OpenStructUse:
+  Exclude:
+    - '**/spec/**/*'
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/ExampleLength:
+  CountAsOne: ['array', 'hash', 'heredoc']
+
+Performance:
+  Exclude:
+    - '**/spec/**/*'
+
+# Prefer assert_not over assert !
+Rails/AssertNot:
+  Include:
+    - '**/spec/**/*'
+
+# Prefer assert_not_x over refute_x
+Rails/RefuteMethods:
+  Include:
+    - '**/spec/**/*'
+
+Layout/LineLength:
+  Max: 150
+
+Metrics/MethodLength:
+  CountComments: false
+  Max: 15
+  Exclude:
+    - lib/tasks/dev.rake
+    - app/controllers/graphql_controller.rb
+
+Metrics/BlockLength:
+  CountComments: false
+  Exclude:
+    - Guardfile
+    - config/routes.rb
+    - spec/**/*
+    - lib/tasks/dev.rake
+
+Naming/MethodParameterName:
+  MinNameLength: 1
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
