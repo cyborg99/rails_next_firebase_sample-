@@ -3,29 +3,20 @@ import { ImageList, ImageListItem } from '@mui/material'
 import { Stack } from '@mui/system'
 
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { setTokenCookie } from '../cookie'
-import { setClientHeaders } from '../graphql/client'
 import { useSignUpUserMutation } from '../graphql/documents/signUpUser.generated'
 import useFirebaseAuth from '../hooks/use_firebase_auth'
 
 function SnsAuthButtons() {
-  const { authInfoList, successState } = useFirebaseAuth()
-  const router = useRouter()
+  const { authInfoList, successState, successAuth } = useFirebaseAuth()
 
   const [signUpUserMutation, { loading }] = useSignUpUserMutation()
-  const successAuth = () => {
-    setClientHeaders(successState.refreshToken)
-    setTokenCookie(successState.refreshToken)
-    router.push('./my_page')
-  }
   useEffect(() => {
-    if (successState.idToken) {
+    if (successState.idToken && successState.refreshToken) {
       if (successState.isNewUser) {
         signUpUserMutation({
           variables: {
-            input: { token: successState.idToken }
+            input: { idToken: successState.idToken, refreshToken: successState.refreshToken }
           }
         }).then(() => {
           successAuth()

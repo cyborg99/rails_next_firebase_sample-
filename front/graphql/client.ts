@@ -6,7 +6,7 @@ const createLink = (token: string): ApolloLink => {
     uri: `${process.env.SERVICE_URL}/graphql`,
     headers: {
       'content-Type': 'application/json',
-      Authorization: token
+      Authorization: `Bearer ${token}`
     }
   })
 }

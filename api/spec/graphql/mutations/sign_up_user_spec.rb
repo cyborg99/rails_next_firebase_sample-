@@ -5,11 +5,12 @@ require 'rails_helper'
 RSpec.describe Mutations::SignUpUser do
   subject(:execute) { AppSchema.execute(query, variables:) }
 
-  let(:token) { 'token_xxx' }
+  let(:id_token) { 'id_token_xxx' }
+  let(:refresh_token) { 'refresh_token_xxx' }
   let(:username) { 'テストユーザー' }
   let(:email) { 'test@example.com' }
   let(:uid) { 'uid_xxxx' }
-  let(:variables) { { input: { token: } } }
+  let(:variables) { { input: { idToken: id_token, refreshToken: refresh_token } } }
   let(:query) do
     <<~GRAPHQL
       mutation($input: SignUpUserInput!) {
@@ -18,6 +19,8 @@ RSpec.describe Mutations::SignUpUser do
             id
             email
             userName
+            refreshToken
+            idToken
             createdAt
             updatedAt
           }
@@ -31,6 +34,8 @@ RSpec.describe Mutations::SignUpUser do
       'id' => User.last.id.to_s,
       'email' => email,
       'userName' => username,
+      'refreshToken' => refresh_token,
+      'idToken' => id_token,
       'createdAt' => anything,
       'updatedAt' => anything
     }
@@ -39,7 +44,7 @@ RSpec.describe Mutations::SignUpUser do
   shared_examples 'Mutations::SignUpUser' do
     it do
       expect { execute }.to change { User.find_by(uid:) }.from(be_falsey).to(be_truthy)
-      expect(execute['data']['signUpUser']['user']).to include(expected_value)
+      expect(execute['data']['signUpUser']['user']).to match(expected_value)
     end
 
     context 'with exists User' do
@@ -51,8 +56,8 @@ RSpec.describe Mutations::SignUpUser do
       end
 
       it do
-        expect { execute }.not_to change(User, :count)
-        expect(execute['data']['signUpUser']['user']).to include(expected_value)
+        expect { execute }.to raise_error(ActiveRecord::RecordNotUnique)
+          .and not_change(User, :count)
       end
     end
   end

@@ -1,18 +1,16 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
-  class << self
-    def find_and_refresh_token(refresh_token)
-      return if refresh_token.blank?
+  before_destroy :delete_from_firebase
 
-      responce = Net::HTTP.post_form(
-        URI.parse("https://securetoken.googleapis.com/v1/token?key=#{ENV.fetch('FIREBASE_APY_KEY')}"),
-        grant_type: 'refresh_token', refresh_token:
-      )
-      body = JSON.parse(responce.body)
-      return find_by!(uid: body['user_id']) if responce.code == '200'
+  private
 
-      raise StandardError, body['error']['message']
-    end
+  def delete_from_firebase
+    responce = Net::HTTP.post_form(
+      URI.parse("https://identitytoolkit.googleapis.com/v1/accounts:delete?key=#{ENV.fetch('FIREBASE_APY_KEY')}"),
+      idToken: id_token
+    )
+    body = JSON.parse(responce.body)
+    raise StandardError, body['error']['message'] unless responce.code == '200'
   end
 end

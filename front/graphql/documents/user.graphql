@@ -3,5 +3,9 @@ query user {
     id
     email
     userName
+    refreshToken
+    idToken
+    createdAt
+    updatedAt
   }
 }

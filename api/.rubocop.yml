@@ -39,6 +39,7 @@ RSpec/MultipleExpectations:
 
 RSpec/ExampleLength:
   CountAsOne: ['array', 'hash', 'heredoc']
+  Max: 10
 
 Performance:
   Exclude:
