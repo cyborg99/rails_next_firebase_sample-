@@ -19,7 +19,9 @@ module FirebaseAuth
 
   def find_form_id_token!(id_token)
     @id_token = id_token
-    User.find_by(uid: _uid)
+    user = User.find_by(uid: _uid)
+    user.update!(id_token:)
+    user
   rescue JWT::ExpiredSignature
     _find_and_refresh_token!
   end
