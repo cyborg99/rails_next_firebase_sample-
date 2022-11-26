@@ -16,14 +16,19 @@ RSpec.describe FirebaseAuth do
     let(:username) { 'テストユーザー' }
     let(:id_token) { 'id_token_xxx' }
     let(:refresh_token) { 'refresh_token_xxx' }
-    let!(:user) { create(:user, uid:, email:, user_name: username, id_token:, refresh_token:) }
+    let!(:user) { create(:user, uid:, email:, user_name: username, id_token: 'before_id_token_xxx', refresh_token:) }
 
     context 'with 有効期限内のid_token' do
       include_context 'with FirebaseAuth 有効な公開鍵がキャッシュに保存されている'
-      it { is_expected.to eq(user) }
+      it do
+        expect { execute }.to change { user.reload.id_token }.from('before_id_token_xxx').to('id_token_xxx')
+        expect(execute).to eq(user)
+      end
     end
 
     context 'with 有効期限切れのIDトークン' do
+      let!(:user) { create(:user, uid:, email:, user_name: username, id_token:, refresh_token:) }
+
       before do
         allow(JWT).to receive(:decode).with(id_token, nil, true, FirebaseAuth::OPTIONS).and_raise(JWT::ExpiredSignature)
       end
