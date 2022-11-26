@@ -10,7 +10,7 @@ shared_context 'with FirebaseAuth 有効な公開鍵がキャッシュに保存�
   include_context 'with FirebaseAuth setup', auth_time: auth_time
 
   before do
-    allow(JWT).to receive(:decode).with(token, nil, true, FirebaseAuth::OPTIONS).and_yield(header).once
+    allow(JWT).to receive(:decode).with(id_token, nil, true, FirebaseAuth::OPTIONS).and_yield(header).once
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
     Rails.cache.write('firebase_auth_certificates', { 'kid_xxxxx' => 'cert_xxxxx' }, expires_in: 1.day.from_now)
@@ -23,7 +23,7 @@ shared_context 'with FirebaseAuth 有効な公開鍵がキャッシュに保存�
 
   before do
     travel_to('2022-11-01'.in_time_zone)
-    allow(JWT).to receive(:decode).with(token, nil, true, FirebaseAuth::OPTIONS).and_yield(header).once
+    allow(JWT).to receive(:decode).with(id_token, nil, true, FirebaseAuth::OPTIONS).and_yield(header).once
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
     allow(Net::HTTP).to receive(:get_response)

@@ -1,6 +1,9 @@
 import { AuthErrorCodes, AuthProvider, getAdditionalUserInfo, signInWithPopup } from 'firebase/auth'
+import { useRouter } from 'next/router'
 import { useState } from 'react'
+import { setTokenCookie } from '../cookie'
 import { auth, githubAuthProvider, googleAuthprovider } from '../features/const/firebase'
+import { setClientHeaders } from '../graphql/client'
 
 type SuccessState = {
   isNewUser?: boolean
@@ -44,5 +47,12 @@ export default function useFirebaseAuth() {
     method: () => void
   }[]
 
-  return { authInfoList, successState }
+  const router = useRouter()
+  const successAuth = () => {
+    setClientHeaders(successState.idToken)
+    setTokenCookie(successState.idToken)
+    router.push('./my_page')
+  }
+
+  return { authInfoList, successState, successAuth }
 }

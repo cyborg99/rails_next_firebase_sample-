@@ -12,40 +12,59 @@ module FirebaseAuth
     verify_iat: true
   }.freeze
 
+  def create_form_id_token!(id_token, refresh_token)
+    @id_token = id_token
+    User.create!(user_name: _user_name, email: _email, uid: _uid, refresh_token:, id_token:)
+  end
+
+  def find_form_id_token!(id_token)
+    @id_token = id_token
+    User.find_by(uid: _uid)
+  rescue JWT::ExpiredSignature
+    _find_and_refresh_token!
+  end
+
   private
 
-  def payload!
-    return @payload if @payload
+  def _find_and_refresh_token!
+    body = _refresh_token!
+    user = User.find_by!(uid: body['user_id'])
+    user.update!(refresh_token: body['refresh_token'], id_token: body['id_token'])
+    user
+  end
 
-    @payload, = JWT.decode(@token, nil, true, OPTIONS) do |header|
-      cert = fetch_certificates[header['kid']]
+  def _payload!
+    return @_payload if @_payload
+
+    @_payload, = JWT.decode(@id_token, nil, true, OPTIONS) do |header|
+      cert = _fetch_certificates[header['kid']]
       OpenSSL::X509::Certificate.new(cert).public_key if cert.present?
     end
 
-    verify!
+    _verify!
 
-    @payload
+    @_payload
   end
 
-  def uid
-    payload!['sub']
+  def _uid
+    _payload!['sub']
   end
 
-  def email
-    payload!['email']
+  def _email
+    _payload!['email']
   end
 
-  def user_name
-    payload!['name']
+  def _user_name
+    _payload!['name']
   end
 
-  def verify!
-    raise StandardError, 'Invalid auth_time' if Time.zone.at(@payload['auth_time']).future?
-    raise StandardError, 'Invalid sub' if @payload['sub'].empty?
+  def _verify!
+    raise StandardError, 'Invalid auth_time' if Time.zone.at(@_payload['auth_time']).future?
+    raise StandardError, 'Invalid sub' if @_payload['sub'].empty?
   end
 
-  def fetch_certificates
-    return certificates_cache if certificates_cache.present?
+  def _fetch_certificates
+    return _certificates_cache if _certificates_cache.present?
 
     res = Net::HTTP.get_response(URI(CERTS_URI))
     body = JSON.parse(res.body)
@@ -54,7 +73,19 @@ module FirebaseAuth
     body
   end
 
-  def certificates_cache
-    @certificates_cache ||= Rails.cache.read(CERTS_CACHE_KEY)
+  def _certificates_cache
+    @_certificates_cache ||= Rails.cache.read(CERTS_CACHE_KEY)
+  end
+
+  def _refresh_token!
+    responce = Net::HTTP.post_form(
+      URI.parse("https://securetoken.googleapis.com/v1/token?key=#{ENV.fetch('FIREBASE_APY_KEY')}"),
+      grant_type: 'refresh_token', refresh_token: User.find_by!(id_token: @id_token).refresh_token
+    )
+    body = JSON.parse(responce.body)
+    @id_token = body['id_token']
+    raise StandardError, body['error']['message'] unless responce.code == '200'
+
+    body
   end
 end

@@ -1,29 +1,27 @@
-import * as Types from '../types'
+import * as Types from '../types';
 
-import { gql } from '@apollo/client'
-import * as Apollo from '@apollo/client'
-const defaultOptions = {} as const
-export type UserQueryVariables = Types.Exact<{ [key: string]: never }>
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
+const defaultOptions = {} as const;
+export type UserQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
-export type UserQuery = {
-  __typename?: 'Query'
-  user: {
-    __typename?: 'User'
-    id: string
-    email?: string | null
-    userName?: string | null
-  }
-}
+
+export type UserQuery = { __typename?: 'Query', user: { __typename?: 'User', id: string, email?: string | null, userName?: string | null, refreshToken: string, idToken: string, createdAt: any, updatedAt: any } };
+
 
 export const UserDocument = gql`
-  query user {
-    user {
-      id
-      email
-      userName
-    }
+    query user {
+  user {
+    id
+    email
+    userName
+    refreshToken
+    idToken
+    createdAt
+    updatedAt
   }
-`
+}
+    `;
 
 /**
  * __useUserQuery__
@@ -41,13 +39,13 @@ export const UserDocument = gql`
  * });
  */
 export function useUserQuery(baseOptions?: Apollo.QueryHookOptions<UserQuery, UserQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, options)
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+      }
 export function useUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserQuery, UserQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, options)
-}
-export type UserQueryHookResult = ReturnType<typeof useUserQuery>
-export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>
-export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+        }
+export type UserQueryHookResult = ReturnType<typeof useUserQuery>;
+export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>;
+export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>;

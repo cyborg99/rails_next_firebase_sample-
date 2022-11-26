@@ -13,11 +13,14 @@ See [here](https://guides.rubyonrails.org/index.html) for information on how to 
 
 ### User Registration
 
+Receive FIrebase refresh token and store it in the database.
 Receive and decode Firebase ID token.
 Once decoded, you will be able to retrieve information about the user that the social provider has.
 Decoding is secured using public keys published by Google.
+Register users based on the decoded information
 
 ### User Authentication
 
-Receive a FIrebase refresh token and use Firebase's publicly available Rest to refresh the token and obtain the user_id.
-Refreshing also extends the validity period of the token.
+Receives a Firebase identity token and searches for users in the database based on the decoded user_id.
+If the FIrebase identity token has expired, use a refresh token to extend the expiration date.
+The newly generated ID token and refresh token are returned to the client.
