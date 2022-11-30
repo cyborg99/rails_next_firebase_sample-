@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router'
 import { createContext, useEffect, useState } from 'react'
-import { destroyTokenCookieIfTokenError, getTokenCookie, setTokenCookie } from '../cookie'
 import { useUserLazyQuery } from '../graphql/documents/user.generated'
 import { UserQuery } from '../graphql/types'
 
@@ -12,22 +11,18 @@ export default function AuthContextProvider({ children }: { children: React.Reac
   const [user, setUser] = useState<UserContextType>()
   const router = useRouter()
   useEffect(() => {
-    if (getTokenCookie()) {
-      getUser()
-    } else if (router.pathname !== '/') {
-      router.push('/')
-    }
+    getUser()
   }, [router])
 
   useEffect(() => {
     if (data) {
-      setTokenCookie(data.user.idToken)
       setUser(data.user)
-      if (router.pathname == '/') router.push('/my_page')
+      if (router.pathname === '/') router.push('/my_page')
     }
+
     if (error) {
       setUser(undefined)
-      destroyTokenCookieIfTokenError(error.message)
+      if (router.pathname !== '/') router.push('/')
     }
   }, [data, error])
 

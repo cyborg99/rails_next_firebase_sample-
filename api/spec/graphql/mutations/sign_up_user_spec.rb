@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Mutations::SignUpUser do
-  subject(:execute) { AppSchema.execute(query, variables:) }
+  subject(:execute) { AppSchema.execute(query, variables:, context: { session: {} }) }
 
   let(:id_token) { 'id_token_xxx' }
   let(:refresh_token) { 'refresh_token_xxx' }
@@ -19,8 +19,6 @@ RSpec.describe Mutations::SignUpUser do
             id
             email
             userName
-            refreshToken
-            idToken
             createdAt
             updatedAt
           }
@@ -34,8 +32,6 @@ RSpec.describe Mutations::SignUpUser do
       'id' => User.last.id.to_s,
       'email' => email,
       'userName' => username,
-      'refreshToken' => refresh_token,
-      'idToken' => id_token,
       'createdAt' => anything,
       'updatedAt' => anything
     }

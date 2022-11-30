@@ -4,30 +4,37 @@ require 'rails_helper'
 
 RSpec.describe FirebaseAuth do
   let(:test_class) do
-    Class.new { include FirebaseAuth }
+    Class.new do
+      include FirebaseAuth
+      attr_accessor :session
+
+      def initialize
+        @session = { id_token: 'id_token_xxx', refresh_token: 'refresh_token_xxx' }
+      end
+    end
   end
   let(:concern) { test_class.new }
 
   describe '#find_form_id_token' do
-    subject(:execute) { concern.find_form_id_token!(id_token) }
+    subject(:execute) { concern.find_form_id_token! }
 
     let(:uid) { 'uid_xxx' }
     let(:email) { 'test@example.com' }
     let(:username) { 'テストユーザー' }
     let(:id_token) { 'id_token_xxx' }
     let(:refresh_token) { 'refresh_token_xxx' }
-    let!(:user) { create(:user, uid:, email:, user_name: username, id_token: 'before_id_token_xxx', refresh_token:) }
+    let!(:user) { create(:user, uid:, email:, user_name: username, refresh_token:) }
 
     context 'with 有効期限内のid_token' do
       include_context 'with FirebaseAuth 有効な公開鍵がキャッシュに保存されている'
       it do
-        expect { execute }.to change { user.reload.id_token }.from('before_id_token_xxx').to('id_token_xxx')
+        expect { execute }.not_to(change { concern.session[:id_token] })
         expect(execute).to eq(user)
       end
     end
 
     context 'with 有効期限切れのIDトークン' do
-      let!(:user) { create(:user, uid:, email:, user_name: username, id_token:, refresh_token:) }
+      let!(:user) { create(:user, uid:, email:, user_name: username, refresh_token:) }
 
       before do
         allow(JWT).to receive(:decode).with(id_token, nil, true, FirebaseAuth::OPTIONS).and_raise(JWT::ExpiredSignature)
@@ -44,10 +51,10 @@ RSpec.describe FirebaseAuth do
         end
 
         it do
-          expect { execute }.to change { user.reload.id_token }.from('id_token_xxx').to('new_id_token_xxx')
-                                                               .and change {
-                                                                      user.reload.refresh_token
-                                                                    }.from('refresh_token_xxx').to('new_refresh_token_xxx')
+          expect { execute }.to change { concern.session[:id_token] }.from('id_token_xxx').to('new_id_token_xxx')
+                                                                     .and change {
+                                                                            user.reload.refresh_token
+                                                                          }.from('refresh_token_xxx').to('new_refresh_token_xxx')
           expect(execute).to eq(user.reload)
         end
 

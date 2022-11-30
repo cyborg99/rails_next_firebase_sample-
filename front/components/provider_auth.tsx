@@ -4,25 +4,26 @@ import { Stack } from '@mui/system'
 
 import dynamic from 'next/dynamic'
 import { useEffect } from 'react'
+import { useSignInUserMutation } from '../graphql/documents/signInUser.generated'
 import { useSignUpUserMutation } from '../graphql/documents/signUpUser.generated'
 import useFirebaseAuth from '../hooks/use_firebase_auth'
 
 function SnsAuthButtons() {
   const { authInfoList, successState, successAuth } = useFirebaseAuth()
 
-  const [signUpUserMutation, { loading }] = useSignUpUserMutation()
+  const [signUpUserMutation] = useSignUpUserMutation()
+  const [signInUserMutation] = useSignInUserMutation()
   useEffect(() => {
     if (successState.idToken && successState.refreshToken) {
+      const variables = {
+        variables: {
+          input: { idToken: successState.idToken, refreshToken: successState.refreshToken }
+        }
+      }
       if (successState.isNewUser) {
-        signUpUserMutation({
-          variables: {
-            input: { idToken: successState.idToken, refreshToken: successState.refreshToken }
-          }
-        }).then(() => {
-          successAuth()
-        })
+        signUpUserMutation(variables).then(() => successAuth())
       } else {
-        successAuth()
+        signInUserMutation(variables).then(() => successAuth())
       }
     }
   }, [successState])
