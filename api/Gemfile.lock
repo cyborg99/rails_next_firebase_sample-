@@ -169,6 +169,9 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.4.3)
       loofah (~> 2.3)
+    rails_same_site_cookie (0.1.9)
+      rack (>= 1.5)
+      user_agent_parser (~> 2.6)
     railties (7.0.4)
       actionpack (= 7.0.4)
       activesupport (= 7.0.4)
@@ -178,6 +181,16 @@ GEM
       zeitwerk (~> 2.5)
     rainbow (3.1.1)
     rake (13.0.6)
+    redis (4.8.0)
+    redis-actionpack (5.3.0)
+      actionpack (>= 5, < 8)
+      redis-rack (>= 2.1.0, < 3)
+      redis-store (>= 1.1.0, < 2)
+    redis-rack (2.1.4)
+      rack (>= 2.0.8, < 3)
+      redis-store (>= 1.2, < 2)
+    redis-store (1.9.1)
+      redis (>= 4, < 5)
     regexp_parser (2.6.0)
     reverse_markdown (2.1.1)
       nokogiri
@@ -251,6 +264,7 @@ GEM
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.3.0)
+    user_agent_parser (2.13.0)
     webrick (1.7.0)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
@@ -276,6 +290,9 @@ DEPENDENCIES
   puma (~> 5.0)
   rack-cors
   rails (~> 7.0.4)
+  rails_same_site_cookie
+  redis
+  redis-actionpack
   rspec-rails
   rubocop
   rubocop-ast

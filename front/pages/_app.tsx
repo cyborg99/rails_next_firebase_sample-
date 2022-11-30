@@ -5,7 +5,6 @@ import AuthContextProvider from '../context/AuthCcontextProvider'
 import client from '../graphql/client'
 
 export default function App({ Component, pageProps }: AppProps) {
-  Component.contextTypes
   return (
     <ApolloProvider client={client}>
       <AuthContextProvider>

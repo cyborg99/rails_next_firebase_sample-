@@ -4,14 +4,14 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { useContext } from 'react'
 import { UserContext } from '../../context/AuthCcontextProvider'
-import { destroyTokenCookie } from '../../cookie'
+import { useLogoutMutation } from '../../graphql/documents/logout.generated'
 
 function MyPage() {
   const user = useContext(UserContext)
   const router = useRouter()
+  const [logoutMutation] = useLogoutMutation()
   const handleLogout = () => {
-    destroyTokenCookie()
-    router.push('/')
+    logoutMutation({ variables: { input: {} } }).then(() => router.push('/'))
   }
   if (!user) return <></>
   return (

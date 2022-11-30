@@ -1,0 +1,6 @@
+mutation logout($input: LogoutInput!) {
+  logout(input: $input) {
+    __typename
+
+  }
+}

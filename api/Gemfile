@@ -45,6 +45,11 @@ gem 'jwt'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
 
+gem 'redis'
+gem 'redis-actionpack'
+
+gem 'rails_same_site_cookie'
+
 group :development, :test do
   gem 'pry-byebug'
   gem 'rspec-rails'

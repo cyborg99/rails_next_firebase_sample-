@@ -15,9 +15,7 @@ extends:
   - plugin:react/recommended
 ignorePatterns:
   - '*.generated.ts'
-  - src/graphql/types.ts
-  - src/store/index.ts
-  - amplify/**
+  - graphql/types.ts
 plugins:
   - react
   - '@typescript-eslint'

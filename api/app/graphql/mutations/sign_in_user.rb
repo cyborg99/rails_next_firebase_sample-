@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Mutations
-  class SignUpUser < BaseMutation
+  class SignInUser < BaseMutation
     field :user, Types::UserType, null: false
 
     argument :id_token, String, required: true
@@ -9,7 +9,7 @@ module Mutations
 
     def resolve(id_token:, refresh_token:)
       setting_session(id_token, refresh_token)
-      { user: create_form_id_token! }
+      { user: find_form_id_token! }
     end
   end
 end

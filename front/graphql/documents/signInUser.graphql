@@ -1,0 +1,9 @@
+mutation signInUser($input: SignInUserInput!) {
+  signInUser(input: $input) {
+    __typename
+    user {
+      id
+      email
+    }
+  }
+}

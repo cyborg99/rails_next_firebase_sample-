@@ -12,33 +12,49 @@ module FirebaseAuth
     verify_iat: true
   }.freeze
 
-  def create_form_id_token!(id_token, refresh_token)
-    @id_token = id_token
-    User.create!(user_name: _user_name, email: _email, uid: _uid, refresh_token:, id_token:)
+  def create_form_id_token!
+    User.create!(user_name: _user_name, email: _email, uid: _uid, refresh_token: session[:refresh_token])
   end
 
-  def find_form_id_token!(id_token)
-    @id_token = id_token
-    user = User.find_by(uid: _uid)
-    user.update!(id_token:)
-    user
+  def find_form_id_token!
+    return unless session[:id_token]
+
+    User.find_by(uid: _uid)
   rescue JWT::ExpiredSignature
     _find_and_refresh_token!
   end
 
   private
 
+  def setting_session(id_token, refresh_token)
+    session[:id_token] = id_token
+    session[:refresh_token] = refresh_token
+  end
+
+  def delete_session
+    setting_session(nil, nil)
+  end
+
+  def id_token
+    session[:id_token]
+  end
+
+  def refresh_token
+    session[:refresh_token]
+  end
+
   def _find_and_refresh_token!
     body = _refresh_token!
+    setting_session(body['id_token'], body['refresh_token'])
     user = User.find_by!(uid: body['user_id'])
-    user.update!(refresh_token: body['refresh_token'], id_token: body['id_token'])
+    user.update!(refresh_token:)
     user
   end
 
   def _payload!
     return @_payload if @_payload
 
-    @_payload, = JWT.decode(@id_token, nil, true, OPTIONS) do |header|
+    @_payload, = JWT.decode(id_token, nil, true, OPTIONS) do |header|
       cert = _fetch_certificates[header['kid']]
       OpenSSL::X509::Certificate.new(cert).public_key if cert.present?
     end
@@ -82,10 +98,9 @@ module FirebaseAuth
   def _refresh_token!
     responce = Net::HTTP.post_form(
       URI.parse("https://securetoken.googleapis.com/v1/token?key=#{ENV.fetch('FIREBASE_APY_KEY')}"),
-      grant_type: 'refresh_token', refresh_token: User.find_by!(id_token: @id_token).refresh_token
+      grant_type: 'refresh_token', refresh_token:
     )
     body = JSON.parse(responce.body)
-    @id_token = body['id_token']
     raise StandardError, body['error']['message'] unless responce.code == '200'
 
     body
